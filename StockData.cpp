@@ -1,0 +1,3 @@
+StockData::StockData() {
+	
+}
