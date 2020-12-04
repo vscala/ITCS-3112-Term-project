@@ -1,3 +1,0 @@
-#ifdef STOCKINDICATOR_H
-#define STOCKINDICATOR_H
-

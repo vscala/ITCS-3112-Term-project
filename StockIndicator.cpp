@@ -1,3 +1,0 @@
-StockIndicator::StockIndicator() {
-	
-}

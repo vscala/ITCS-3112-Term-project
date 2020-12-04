@@ -1,3 +1,0 @@
-StockData::StockData() {
-	
-}
