@@ -1,34 +1,61 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <curl/curl.h>
+//#include <rapidjson/document.h>
 
+//using namespace rapidjson;
 using namespace std;
 
-void readStockData(string symbol) {
-    CURL *hnd = curl_easy_init();
-    FILE * file;
-    file = fopen("out.dat", "w");
-    
-    //string temp = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY&symbol=" + symbol + "&outputsize=full&datatype=json";
-    
-    //"https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY&symbol=fdsfsdfa&outputsize=full&datatype=json"
-    
-    //cout << temp << endl;
-    curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
-    curl_easy_setopt(hnd, CURLOPT_URL, "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY&symbol=TESLA&outputsize=full&datatype=json");
+class StockData {
+    private:
+        string symbol;
+        string url;
+        CURL * easyhandle;
+        struct curl_slist * headers;
+        
+        static size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp) {
+            ((std::string*)userp)->append((char*)contents, size * nmemb);
+            return size * nmemb;
+        }
+        
+        void initializeCurl() {
+            easyhandle = curl_easy_init();
+            curl_global_init(CURL_GLOBAL_ALL);
+            curl_easy_setopt(easyhandle, CURLOPT_CUSTOMREQUEST, "GET");
+            curl_easy_setopt(easyhandle, CURLOPT_URL, url.c_str());
+        }
+        
+        void setHeaders() {
+            headers = curl_slist_append(headers, "x-rapidapi-key: 623d0d283fmsh0ece875b6aac448p15fa6ejsn17c7de05a48d");
+            headers = curl_slist_append(headers, "x-rapidapi-host: alpha-vantage.p.rapidapi.com");
+            curl_easy_setopt(easyhandle, CURLOPT_HTTPHEADER, headers);
+        }
+        /*
+        
+        void todo() {
+            CURLcode ret = curl_easy_perform(easyhandle);
+            curl_easy_setopt(easyhandle, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, &readBuffer);
 
-    struct curl_slist *headers = NULL;
-    headers = curl_slist_append(headers, "x-rapidapi-key: ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
-    headers = curl_slist_append(headers, "x-rapidapi-host: alpha-vantage.p.rapidapi.com");
-    curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
-    curl_easy_setopt(hnd, CURLOPT_WRITEDATA, file);
+            curl_easy_perform(easyhandle);
 
-    CURLcode ret = curl_easy_perform(hnd);
-}
+            Document document;
+            document.Parse(readBuffer.c_str());
 
-int main() {
-    string symbol = "TESLA";
-	readStockData(symbol);
-	return 0;
+            std::cout << document["Time Series (Daily)"].GetString() << std::endl;
+            
+        }*/
+
+    public:
+        StockData(string symbol) {
+            this->symbol = symbol;
+            this->url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + symbol + "&outputsize=full&datatype=json";
+            initializeCurl();
+            setHeaders();
+        }      
+};
+
+int main(int argc, char * argv[]) {
+    StockData Microsoft("MSFT");
+    return 0;
 }
