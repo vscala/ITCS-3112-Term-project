@@ -1,15 +1,33 @@
 #include <iostream>
-#include <string>
+#include <string.h>
+#include <stdio.h>
 #include <curl/curl.h>
-//#include <rapidjson/document.h>
-
-//using namespace rapidjson;
 using namespace std;
 
 class StockData {
+    struct StockDataEntry {
+        string data;
+        float open;
+        float high;
+        float low;
+        float close;
+        float adjusted_close;
+        float volume;
+        float dividend;
+        float split_coefficient;
+        StockDataEntry() {}
+        StockDataEntry(string data, float open, float high, float low, float close,
+                       float adjusted_close, float volume, float dividend, float split_coefficient) {
+            this->data = data; this->open = open; this->high = high; this->low = low;
+            this->close = close; this->adjusted_close = adjusted_close; this->volume = volume;
+            this->dividend = dividend; this->split_coefficient = split_coefficient;
+        }
+    };
     private:
+        StockDataEntry * data;
         string symbol;
         string url;
+        string key = "ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5";
         CURL * easyhandle;
         struct curl_slist * headers;
         
@@ -26,33 +44,47 @@ class StockData {
         }
         
         void setHeaders() {
-            headers = curl_slist_append(headers, "x-rapidapi-key: 623d0d283fmsh0ece875b6aac448p15fa6ejsn17c7de05a48d");
+            string keyheader = "x-rapidapi-key: " + key;
+            headers = curl_slist_append(headers, keyheader.c_str());
             headers = curl_slist_append(headers, "x-rapidapi-host: alpha-vantage.p.rapidapi.com");
             curl_easy_setopt(easyhandle, CURLOPT_HTTPHEADER, headers);
         }
-        /*
         
-        void todo() {
-            CURLcode ret = curl_easy_perform(easyhandle);
+        string readData() {
+            string readBuffer;
             curl_easy_setopt(easyhandle, CURLOPT_WRITEFUNCTION, WriteCallback);
             curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, &readBuffer);
-
             curl_easy_perform(easyhandle);
-
-            Document document;
-            document.Parse(readBuffer.c_str());
-
-            std::cout << document["Time Series (Daily)"].GetString() << std::endl;
-            
-        }*/
+            return readBuffer;
+        }
+        
+        StockDataEntry parseLine(char * line) {
+            cout << line << endl << endl;
+            StockDataEntry temp;
+            return temp;
+        }
+        
+        void parseData(string readBuffer) {
+            char *token = strtok((char*)readBuffer.c_str(), "\n"); 
+            while (token != NULL) { 
+                printf("%s\n", token); 
+                token = strtok(NULL, "\n"); 
+            }
+        }
+        
 
     public:
         StockData(string symbol) {
             this->symbol = symbol;
-            this->url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + symbol + "&outputsize=full&datatype=json";
+            this->url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + symbol + "&outputsize=compact&datatype=csv";
             initializeCurl();
             setHeaders();
+            string readBuffer = readData();
+            parseData(readBuffer);
         }      
+        void setAPIKey(string key) {
+            this->key = key;
+        }
 };
 
 int main(int argc, char * argv[]) {
