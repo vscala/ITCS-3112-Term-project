@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
+#include <vector>
 #include <curl/curl.h>
 using namespace std;
 
@@ -24,10 +25,9 @@ class StockData {
         }
     };
     private:
-        StockDataEntry * data;
         string symbol;
         string url;
-        string key = "ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5";
+        string key;
         CURL * easyhandle;
         struct curl_slist * headers;
         
@@ -58,17 +58,25 @@ class StockData {
             return readBuffer;
         }
         
-        StockDataEntry parseLine(char * line) {
-            cout << line << endl << endl;
-            StockDataEntry temp;
-            return temp;
+        StockDataEntry parseLine(string line) {
+            cout << line << "???";
+            //TODO Split and unpack line into arguments for StockDataEntry
+            StockDataEntry z;//(args[0], atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()), atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()), atof(args[7].c_str()), atof(args[8].c_str()));
+            return z;
         }
         
         void parseData(string readBuffer) {
-            char *token = strtok((char*)readBuffer.c_str(), "\n"); 
-            while (token != NULL) { 
-                printf("%s\n", token); 
-                token = strtok(NULL, "\n"); 
+            //Unpack readBuffer
+            vector<string> unpacked;
+            char * k = strtok((char*)readBuffer.c_str(), "\n");
+            for (k = strtok(NULL, "\n"); k != NULL; k = strtok(NULL, "\n")) { 
+                unpacked.push_back(k);
+            }
+            
+            //Parse unpacked buffer
+            vector<StockDataEntry> entries;
+            for (string line : unpacked) {
+                entries.push_back(parseLine(line));
             }
         }
         
@@ -77,17 +85,23 @@ class StockData {
         StockData(string symbol) {
             this->symbol = symbol;
             this->url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + symbol + "&outputsize=compact&datatype=csv";
+        }
+        
+        void setAPIKey(string key) {
+            this->key = key;
+        }
+        
+        void populateData() {
             initializeCurl();
             setHeaders();
             string readBuffer = readData();
             parseData(readBuffer);
-        }      
-        void setAPIKey(string key) {
-            this->key = key;
         }
 };
 
 int main(int argc, char * argv[]) {
     StockData Microsoft("MSFT");
+    Microsoft.setAPIKey("ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
+    Microsoft.populateData();
     return 0;
 }
