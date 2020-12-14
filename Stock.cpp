@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <vector>
 #include <curl/curl.h>
+#include <bits/stdc++.h> 
 using namespace std;
 
 class StockData {
     struct StockDataEntry {
-        string data;
+        string date;
         float open;
         float high;
         float low;
@@ -17,9 +18,9 @@ class StockData {
         float dividend;
         float split_coefficient;
         StockDataEntry() {}
-        StockDataEntry(string data, float open, float high, float low, float close,
+        StockDataEntry(string date, float open, float high, float low, float close,
                        float adjusted_close, float volume, float dividend, float split_coefficient) {
-            this->data = data; this->open = open; this->high = high; this->low = low;
+            this->date = date; this->open = open; this->high = high; this->low = low;
             this->close = close; this->adjusted_close = adjusted_close; this->volume = volume;
             this->dividend = dividend; this->split_coefficient = split_coefficient;
         }
@@ -59,10 +60,20 @@ class StockData {
         }
         
         StockDataEntry parseLine(string line) {
-            cout << line << "???";
-            //TODO Split and unpack line into arguments for StockDataEntry
-            StockDataEntry z;//(args[0], atof(args[1].c_str()), atof(args[2].c_str()), atof(args[3].c_str()), atof(args[4].c_str()), atof(args[5].c_str()), atof(args[6].c_str()), atof(args[7].c_str()), atof(args[8].c_str()));
-            return z;
+            vector <string> tokens; 
+            stringstream check1(line); 
+            string intermediate; 
+            
+            while(getline(check1, intermediate, ',')) { 
+                tokens.push_back(intermediate); 
+            } 
+            
+            StockDataEntry temp(tokens[0], atof(tokens[1].c_str()), atof(tokens[2].c_str()), 
+                             atof(tokens[3].c_str()), atof(tokens[4].c_str()), 
+                             atof(tokens[5].c_str()), atof(tokens[6].c_str()), 
+                             atof(tokens[7].c_str()), atof(tokens[8].c_str()));
+            cout << "Closing price: " << temp.close << " for " << temp.date << endl;
+            return temp;
         }
         
         void parseData(string readBuffer) {
