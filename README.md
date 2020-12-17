@@ -9,5 +9,6 @@ N-Day Average (partially)
 
 ## TODO
 Vector for dates to maintain order \
+put indicator in nested class \
 More access functions \
 Different output (bridges?)
