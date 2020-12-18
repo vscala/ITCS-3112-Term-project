@@ -8,8 +8,7 @@ HashMap for storing stock data in memory \
 N-Day Average (partially)
 
 ## TODO
-Vector for dates to maintain order \
-put indicator in nested class \
 function to print standard indicators \
 More access functions \
+put indicator in nested class \
 Different output (bridges?)
