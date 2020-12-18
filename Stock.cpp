@@ -37,52 +37,67 @@ class StockData {
         
         StockData(string symbol) {
             this->symbol = symbol;
-            this->url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=" + symbol + "&outputsize=full&datatype=csv";
+            updateUrl();
         }
         
-        ~StockData() {
-            //delete [] easyhandle; not defined?    
+        ~StockData() {  
             delete [] headers;
         }
         
+        //set api key to user defined key
         void setAPIKey(string key) {
             this->key = key;
         }
         
+        //update outputsize to new size (full or compact)
+        void setOutputSize(string outputsize) {
+            this->outputsize = outputsize;
+            updateUrl();
+        }
+        
+        //query the api and set internal variables to api output
         void populateData() {
             initializeCurl();
             setHeaders();
             readData();
+            parseCSV();
         }
         
-        StockMap getData() {
-            return data;
-        }
+        //get stock data as a StockMap (map date->stockdataentry)
+        StockMap getData() { return data; }
         
+        string getSymbol() { return symbol; }
+        
+        //function to return the average closing price over the last n-days
         float getNDayAverage(int n) {
             float sum = 0;
+            StockMap::reverse_iterator it;
             int i = 0;
-            for (auto const& x : data) {
-                if (i++ >= n) break;
-                sum += x.second.close;
-                //cout << x.second.close << endl;
+            for (it = data.rbegin(); it != data.rend(); it++) {
+                if (i++ > n) break;
+                sum += it->second.close;
             }
-            return sum / (i-1);
+            return sum / (i);
         }
        
-       
+       // function to return last trading day (returns todays date if market is open)
         string getLastDate() {
-            for (auto const& x : data) return x.first;
+            StockMap::reverse_iterator it;
+            for (it = data.rbegin(); it != data.rend(); it++) 
+                return it->first;
         }
     
     private:
+        const string expected_return = "timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient";
         string symbol;
         string url;
         string key;
-        CURL * easyhandle;
         string readBuffer;
-        const string expected_return = "timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient"; 
+        string outputsize = "compact";
+        
+        CURL * easyhandle; 
         StockMap data;
+        
         struct curl_slist * headers; //don't put variables below this (causes seg fault????!??!)
         
         static size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp) {
@@ -108,7 +123,13 @@ class StockData {
             curl_easy_setopt(easyhandle, CURLOPT_WRITEFUNCTION, WriteCallback);
             curl_easy_setopt(easyhandle, CURLOPT_WRITEDATA, &readBuffer);
             curl_easy_perform(easyhandle);
-            parseCSV();
+        }
+        
+        void updateUrl() {
+            url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED";
+            url += "&symbol=" + symbol;
+            url += "&outputsize=" + outputsize;
+            url += "&datatype=csv";
         }
         
         StockDataEntry parseLine(string line) {
@@ -130,21 +151,17 @@ class StockData {
         void parseCSV() {
             vector<string> unpacked;
             char * k = strtok((char*)readBuffer.c_str(), "\n");
-            //cout << k << endl;
             if (1 != ((string)k).compare(expected_return)) {
-                cout << "API Responded: " << k << endl;
+                cerr << "API Responded: " << k << endl;
                 return;
             }
             
-            for (k = strtok(NULL, "\n"); k != NULL; k = strtok(NULL, "\n")) { 
+            for (k = strtok(NULL, "\n"); k != NULL; k = strtok(NULL, "\n")) 
                 unpacked.push_back(k);
-                //data_size+=1;
-            }
             
             for (string line : unpacked) {
                 StockDataEntry temp = parseLine(line);
                 data[temp.date] = temp;
-                //cout << data[temp.date].date << endl;
             }
         }
 
@@ -153,14 +170,20 @@ class StockData {
 int main(int argc, char * argv[]) {
     StockData Microsoft("MSFT");
     Microsoft.setAPIKey("ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
+    Microsoft.setOutputSize("compact");
     Microsoft.populateData();
+    
     StockData::StockMap MicrosoftData = Microsoft.getData();
-    //cout << MicrosoftData["2020-07-31"].close << endl;
-    cout << "For " << Microsoft.getLastDate() << endl;
+    cout << "On 2020-12-17, Microsoft opened at ";
+    cout << MicrosoftData["2020-12-17"].open << " and closed at ";
+    cout << MicrosoftData["2020-12-17"].close << endl;
+    cout << endl;
+    
+    cout << "For " << Microsoft.getSymbol() << " on " << Microsoft.getLastDate() << endl;
     cout << "The 10 day moving average was " << Microsoft.getNDayAverage(10) << endl;
     cout << "The 100 day moving average was " <<  Microsoft.getNDayAverage(100) << endl;
-    cout << "The 200 day moving average was " <<  Microsoft.getNDayAverage(200) << endl;
-    cout << "The 300 day moving average was " <<  Microsoft.getNDayAverage(200) << endl;
-    // TODO Vector for dates to preserve order!!!
+    //cout << "The 200 day moving average was " <<  Microsoft.getNDayAverage(200) << endl; only works with full api request
+    cout << endl;
+    
     return 0;
 }
