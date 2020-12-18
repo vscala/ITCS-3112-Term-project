@@ -8,7 +8,5 @@ HashMap for storing stock data in memory \
 N-Day Average (partially)
 
 ## TODO
-function to print standard indicators \
-More access functions \
-put indicator in nested class \
-Different output (bridges?)
+fix n-day average \
+graph output(?)
