@@ -66,29 +66,48 @@ class StockData {
         //get stock data as a StockMap (map date->stockdataentry)
         StockMap getData() { return data; }
         
-        string getSymbol() { return symbol; }
+        vector<string> getDateVector() { return datev; }
         
-        //function to return the average closing price over the last n-days
-        float getNDayAverage(int n) {
+        string getSymbol() { return symbol; }
+
+        int getLength() { return datev.size(); }
+        
+        string getFirstDate() { return datev[getLength()-1]; }
+        
+        string getLastDate() { return datev[0]; }
+
+        string getNthDate(int n) { return datev[n]; }
+        
+        float getNDayAverage(int n, int start = 0) {
             float sum = 0;
-            StockMap::reverse_iterator it;
-            int i = 0;
-            for (it = data.rbegin(); it != data.rend(); it++) {
-                if (i++ > n) break;
-                sum += it->second.close;
+            int i;
+            for (i = start; i < n+start; i++) {
+                if (i >= datev.size()) { i--; break; }
+                sum += data[datev[i]].close;
             }
-            return sum / (i);
+            return sum / (i+1);
         }
-       
-       // function to return last trading day (returns todays date if market is open)
-        string getLastDate() {
-            StockMap::reverse_iterator it;
-            for (it = data.rbegin(); it != data.rend(); it++) 
-                return it->first;
+
+        string to_string() {
+            string out = "";
+            for (string date : datev) {
+                out += date;
+                out += "\n\t open: " + std::to_string(data[date].open);
+                out += "\n\t close: " + std::to_string(data[date].close);
+                out += "\n\t adjusted_close: " + std::to_string(data[date].adjusted_close);
+                out += "\n\t low: " + std::to_string(data[date].low);
+                out += "\n\t high: " + std::to_string(data[date].high);
+                out += "\n\t volume: " + std::to_string(data[date].volume);
+                out += "\n\t dividend: " + std::to_string(data[date].dividend);
+                out += "\n\t split_coefficient: " + std::to_string(data[date].split_coefficient);
+                out += "\n\n";
+            }
+            return out;
         }
     
     private:
         const string expected_return = "timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient";
+        const string url_base = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED";
         string symbol;
         string url;
         string key;
@@ -97,6 +116,7 @@ class StockData {
         
         CURL * easyhandle; 
         StockMap data;
+        vector<string> datev;
         
         struct curl_slist * headers; //don't put variables below this (causes seg fault????!??!)
         
@@ -126,7 +146,7 @@ class StockData {
         }
         
         void updateUrl() {
-            url = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED";
+            url = url_base;
             url += "&symbol=" + symbol;
             url += "&outputsize=" + outputsize;
             url += "&datatype=csv";
@@ -152,7 +172,7 @@ class StockData {
             vector<string> unpacked;
             char * k = strtok((char*)readBuffer.c_str(), "\n");
             if (1 != ((string)k).compare(expected_return)) {
-                cerr << "API Responded: " << k << endl;
+                cerr << k << endl;
                 return;
             }
             
@@ -162,27 +182,46 @@ class StockData {
             for (string line : unpacked) {
                 StockDataEntry temp = parseLine(line);
                 data[temp.date] = temp;
+                datev.push_back(temp.date);
             }
         }
 
 };
 
 int main(int argc, char * argv[]) {
-    StockData Microsoft("MSFT");
-    Microsoft.setAPIKey("ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
-    Microsoft.setOutputSize("compact");
-    Microsoft.populateData();
-    
-    StockData::StockMap MicrosoftData = Microsoft.getData();
+    /* --- Test 1: Microsoft --- */
+    StockData * Microsoft = new StockData("MSFT");
+    Microsoft->setAPIKey("ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
+    Microsoft->setOutputSize("full");
+    Microsoft->populateData();
+
+    StockData::StockMap MicrosoftData = Microsoft->getData();
     cout << "On 2020-12-17, Microsoft opened at ";
     cout << MicrosoftData["2020-12-17"].open << " and closed at ";
     cout << MicrosoftData["2020-12-17"].close << endl;
     cout << endl;
+
+    vector<string> msDates = Microsoft->getDateVector();
+    string symbol = Microsoft->getSymbol();
+    int length = Microsoft->getLength();
+
+    cout << "Symbol, valid: " << (msDates.size() == length) << endl;
+    cout << "First date: " << Microsoft->getFirstDate() << endl;
+    cout << "Last date: " << Microsoft->getLastDate() << endl;
+    cout << "The two-hundreth date was " << Microsoft->getNthDate(200) << endl;
+    cout << endl;
+
+    cout << "For " << Microsoft->getSymbol() << " 50 days ago: " << endl;
+    cout << "\t 10 day moving average was " << Microsoft->getNDayAverage(10, 50) << endl;
+    cout << "\t 100 day moving average was " <<  Microsoft->getNDayAverage(100, 50) << endl;
+    cout << "\t 200 day moving average was " <<  Microsoft->getNDayAverage(200, 50) << endl; 
+    cout << endl;
     
-    cout << "For " << Microsoft.getSymbol() << " on " << Microsoft.getLastDate() << endl;
-    cout << "The 10 day moving average was " << Microsoft.getNDayAverage(10) << endl;
-    cout << "The 100 day moving average was " <<  Microsoft.getNDayAverage(100) << endl;
-    //cout << "The 200 day moving average was " <<  Microsoft.getNDayAverage(200) << endl; only works with full api request
+    
+    cout << "For " << Microsoft->getSymbol() << " on " << Microsoft->getLastDate() << endl;
+    cout << "\t 10 day moving average was " << Microsoft->getNDayAverage(10) << endl;
+    cout << "\t 100 day moving average was " <<  Microsoft->getNDayAverage(100) << endl;
+    cout << "\t 200 day moving average was " <<  Microsoft->getNDayAverage(200) << endl; 
     cout << endl;
     
     return 0;
