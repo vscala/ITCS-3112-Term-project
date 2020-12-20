@@ -137,10 +137,11 @@ class StockData {
             float sum = 0; //needs additional testing
             int i;
             for (i = start; i < n+start; i++) {
+                //cout << datev[i] << "\t" << data[datev[i]].close << "\t"  << i << endl;
                 if (i >= datev.size()) { i--; break; }
                 sum += data[datev[i]].close;
             }
-            return sum / (i+1);
+            return sum / (i+1-start);
         }
 
         /**
@@ -254,34 +255,38 @@ int main(int argc, char * argv[]) {
     Microsoft->setAPIKey("ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
     Microsoft->setOutputSize("full");
     Microsoft->populateData();
-
+    
+    // Testing: getDate method and StockDataEntry struct
     StockData::StockMap MicrosoftData = Microsoft->getData();
     cout << "On 2020-12-17, Microsoft opened at ";
     cout << MicrosoftData["2020-12-17"].open << " and closed at ";
     cout << MicrosoftData["2020-12-17"].close << endl;
     cout << endl;
 
+    // Testing: getDateVector, getSymbol, and getLength
     vector<string> msDates = Microsoft->getDateVector();
     string symbol = Microsoft->getSymbol();
     int length = Microsoft->getLength();
+    cout << "Length valid: " << ((msDates.size() == length) ? "TRUE" : "FALSE") << endl;
 
-    cout << "Symbol, valid: " << (msDates.size() == length) << endl;
+    // Testing: date getters
     cout << "First date: " << Microsoft->getFirstDate() << endl;
     cout << "Last date: " << Microsoft->getLastDate() << endl;
-    cout << "The two-hundreth date was " << Microsoft->getNthDate(200) << endl;
-    cout << endl;
-
-    cout << "For " << Microsoft->getSymbol() << " 50 days ago: " << endl;
-    cout << "\t 10 day moving average was " << Microsoft->getNDayAverage(10, 50) << endl;
-    cout << "\t 100 day moving average was " <<  Microsoft->getNDayAverage(100, 50) << endl;
-    cout << "\t 200 day moving average was " <<  Microsoft->getNDayAverage(200, 50) << endl; 
+    cout << "The two-hundredth date was " << Microsoft->getNthDate(200) << endl;
     cout << endl;
     
-    
-    cout << "For " << Microsoft->getSymbol() << " on " << Microsoft->getLastDate() << endl;
+    // Testing: n-th day moving average
+    cout << "For " << symbol << " on " << Microsoft->getLastDate() << endl;
     cout << "\t 10 day moving average was " << Microsoft->getNDayAverage(10) << endl;
     cout << "\t 100 day moving average was " <<  Microsoft->getNDayAverage(100) << endl;
     cout << "\t 200 day moving average was " <<  Microsoft->getNDayAverage(200) << endl; 
+    cout << endl;
+    
+    // Testing: n-th day moving average with start paramater
+    cout << "For " << symbol << " 50 days ago: " << endl;
+    cout << "\t 10 day moving average was " << Microsoft->getNDayAverage(10, 50) << endl;
+    cout << "\t 100 day moving average was " <<  Microsoft->getNDayAverage(100, 50) << endl;
+    cout << "\t 200 day moving average was " <<  Microsoft->getNDayAverage(200, 50) << endl; 
     cout << endl;
     
     return 0;
