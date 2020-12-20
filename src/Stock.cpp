@@ -56,7 +56,7 @@ class StockData {
 
         /**
          *  Method to set api key to user defined key
-         *  @param myParam1 Description of 1st parameter.
+         *  @param key the new API key
          */
         void setAPIKey(string key) {
             this->key = key;
@@ -82,61 +82,56 @@ class StockData {
         }
 
         /**
-         *  get stock data as a StockMap (map date->stockdataentry)
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method to get stock data as a StockMap (map: date->stockdataentry)
+         *  @returns StockMap of all data entries
          */
         StockMap getData() { return data; }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method to return date vector
+         *  @returns Date vector
          */
         vector<string> getDateVector() { return datev; }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method to return stock symbol
+         *  @returns Stock symbol
          */
         string getSymbol() { return symbol; }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method to return the total count of data entries
+         *  @returns Count of data entries
          */
         int getLength() { return datev.size(); }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method to return the most recent date in the date vector
+         *  @returns The most recent date in the date vector
          */
         string getFirstDate() { return datev[getLength()-1]; }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method to return the oldest date in the date vector
+         *  @returns The oldest date in the date vector
          */
         string getLastDate() { return datev[0]; }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method for returning the nth date of the date vector
+         *  @param n The index of the date to be returned
+         *  @returns The nth date in the date vector
          */
         string getNthDate(int n) { return datev[n]; }
 
         /**
-         *  A brief description on a single line, ended by a period or blank line.
-         *  @param myParam1 Description of 1st parameter.
-         *  @returns Description of returned value.
+         *  Method for returning the N-Day Moving Average 
+         *  @param n The number of days to include in the average
+         *  @param start The starting date of the moving average as an index of the date vector
+         *  @returns The N-Day Moving Average
          */
         float getNDayAverage(int n, int start = 0) {
-            float sum = 0;
+            float sum = 0; //needs additional testing
             int i;
             for (i = start; i < n+start; i++) {
                 if (i >= datev.size()) { i--; break; }
