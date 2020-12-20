@@ -36,6 +36,9 @@ class StockData {
     };
     
     public:
+        /**
+         *  A mapping of dates to StockDataEntries
+         */
         typedef map<string, StockDataEntry> StockMap;
 
         /**

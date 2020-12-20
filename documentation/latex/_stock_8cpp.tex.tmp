@@ -1,0 +1,32 @@
+\hypertarget{_stock_8cpp}{}\section{src/\+Stock.cpp File Reference}
+\label{_stock_8cpp}\index{src/\+Stock.\+cpp@{src/\+Stock.\+cpp}}
+{\ttfamily \#include $<$iostream$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include $<$vector$>$}\\*
+{\ttfamily \#include $<$map$>$}\\*
+{\ttfamily \#include $<$curl/curl.\+h$>$}\\*
+{\ttfamily \#include $<$bits/stdc++.\+h$>$}\\*
+Include dependency graph for Stock.\+cpp\+:
+% FIG 0
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_stock_data}{Stock\+Data}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{_stock_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\index{Stock.\+cpp@{Stock.\+cpp}!main@{main}}
+\index{main@{main}!Stock.\+cpp@{Stock.\+cpp}}
+\subsubsection[{\texorpdfstring{main(int argc, char $\ast$argv[])}{main(int argc, char *argv[])}}]{\setlength{\rightskip}{0pt plus 5cm}int main (
+\begin{DoxyParamCaption}
+\item[{int}]{argc, }
+\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]}}
+\end{DoxyParamCaption}
+)}\hypertarget{_stock_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{}\label{_stock_8cpp_a0ddf1224851353fc92bfbff6f499fa97}
