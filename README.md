@@ -11,7 +11,7 @@ N-Day Average (partially)
 fix n-day average \
 graph output(?)
 
-## To turn in
+## To finish
 [✓] Source code of  your project \
 [☓] Doxygen documentation \
 [☓] Design documents (if needed, unless it is already included in the report) \
