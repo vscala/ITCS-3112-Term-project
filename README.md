@@ -5,10 +5,9 @@ UNCC ICTS-3112 Term project (Stock indicator project)
 API Calls \
 CSV Parsing \
 HashMap for storing stock data in memory \
-N-Day Average (partially)
+N-Day Average 
 
 ## TODO
-fix n-day average \
 graph output(?)
 
 ## To finish
