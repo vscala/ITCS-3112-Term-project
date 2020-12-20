@@ -10,7 +10,7 @@ using namespace std;
 class StockData {
     struct StockDataEntry {
         string date;
-        float open;
+        float open; 
         float high;
         float low;
         float close;
@@ -18,66 +18,123 @@ class StockData {
         float volume;
         float dividend;
         float split_coefficient;
+        
         StockDataEntry() {
             this->date = "-1"; this->open = -1; this->high = -1; this->low = -1;
             this->close = -1; this->adjusted_close = -1; this->volume = -1;
             this->dividend = -1; this->split_coefficient = -1;
         }
-        ~StockDataEntry() { } 
+        
         StockDataEntry(string date, float open, float high, float low, float close,
                        float adjusted_close, float volume, float dividend, float split_coefficient) {
             this->date = date; this->open = open; this->high = high; this->low = low;
             this->close = close; this->adjusted_close = adjusted_close; this->volume = volume;
             this->dividend = dividend; this->split_coefficient = split_coefficient;
         }
+        
+        ~StockDataEntry() { } 
     };
     
     public:
         typedef map<string, StockDataEntry> StockMap;
-        
+
+        /**
+         *  Constructor that takes a symbol to use in this object
+         *  @param symbol Symbol as a string used in this object
+         */
         StockData(string symbol) {
             this->symbol = symbol;
             updateUrl();
         }
-        
+
+        /**
+         *  Destructor to free headers
+         */
         ~StockData() {  
             delete [] headers;
         }
-        
-        //set api key to user defined key
+
+        /**
+         *  Method to set api key to user defined key
+         *  @param myParam1 Description of 1st parameter.
+         */
         void setAPIKey(string key) {
             this->key = key;
         }
-        
-        //update outputsize to new size (full or compact)
+
+        /**
+         *  Method to update outputsize to new size (full or compact)
+         *  @param outputsize string containing the new output size
+         */
         void setOutputSize(string outputsize) {
             this->outputsize = outputsize;
             updateUrl();
         }
-        
-        //query the api and set internal variables to api output
+
+        /**
+         *  Method to query the api and set internal variables to api output
+         */
         void populateData() {
             initializeCurl();
             setHeaders();
             readData();
             parseCSV();
         }
-        
-        //get stock data as a StockMap (map date->stockdataentry)
+
+        /**
+         *  get stock data as a StockMap (map date->stockdataentry)
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         StockMap getData() { return data; }
-        
+
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         vector<string> getDateVector() { return datev; }
-        
+
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         string getSymbol() { return symbol; }
 
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         int getLength() { return datev.size(); }
-        
+
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         string getFirstDate() { return datev[getLength()-1]; }
-        
+
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         string getLastDate() { return datev[0]; }
 
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         string getNthDate(int n) { return datev[n]; }
-        
+
+        /**
+         *  A brief description on a single line, ended by a period or blank line.
+         *  @param myParam1 Description of 1st parameter.
+         *  @returns Description of returned value.
+         */
         float getNDayAverage(int n, int start = 0) {
             float sum = 0;
             int i;
@@ -88,6 +145,10 @@ class StockData {
             return sum / (i+1);
         }
 
+        /**
+         *  Method for returning this class as a string
+         *  @returns a string containing all data in StockMap
+         */
         string to_string() {
             string out = "";
             for (string date : datev) {
@@ -108,17 +169,18 @@ class StockData {
     private:
         const string expected_return = "timestamp,open,high,low,close,adjusted_close,volume,dividend_amount,split_coefficient";
         const string url_base = "https://alpha-vantage.p.rapidapi.com/query?function=TIME_SERIES_DAILY_ADJUSTED";
-        string symbol;
-        string url;
-        string key;
-        string readBuffer;
-        string outputsize = "compact";
         
-        CURL * easyhandle; 
-        StockMap data;
-        vector<string> datev;
+        string symbol;                  ///< Stock symbol, set on initialization
+        string url;                     ///< API call URL generated on initialization
+        string key;                     ///< API key set in function call
+        string readBuffer;              ///< Read buffer holds raw data input as string
+        string outputsize = "compact";  ///< Output size to be used in API call (either compact or full)
         
-        struct curl_slist * headers; //don't put variables below this (causes seg fault????!??!)
+        CURL * easyhandle;              ///< Pointer to CURL object (used for API calls)
+        StockMap data;                  ///< Hashmap mapping dates to StockDataEntry elements
+        vector<string> datev;           ///< Date vector, used for querying the stockmap and holding dates in order
+        
+        struct curl_slist * headers; //don't put variables below this (causes seg fault?!)
         
         static size_t WriteCallback(char *contents, size_t size, size_t nmemb, void *userp) {
             ((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -189,7 +251,7 @@ class StockData {
 };
 
 int main(int argc, char * argv[]) {
-    /* --- Test 1: Microsoft --- */
+    /* --- Test: Microsoft --- */
     StockData * Microsoft = new StockData("MSFT");
     Microsoft->setAPIKey("ff4b7dad06mshe8f6632474c0fa5p14aba0jsn5304c3e949f5");
     Microsoft->setOutputSize("full");
