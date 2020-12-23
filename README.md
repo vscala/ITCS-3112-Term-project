@@ -8,7 +8,6 @@ HashMap for storing stock data in memory \
 N-Day Average 
 
 ## TODO
-~~graph output(?) ~~\
 [✓] Source code of  your project \
 [✓] Doxygen documentation \
 [\~] Project report with design documents \
