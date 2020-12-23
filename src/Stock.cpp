@@ -134,10 +134,9 @@ class StockData {
          *  @returns The N-Day Moving Average
          */
         float getNDayAverage(int n, int start = 0) {
-            float sum = 0; //needs additional testing
+            float sum = 0; 
             int i;
             for (i = start; i < n+start; i++) {
-                //cout << datev[i] << "\t" << data[datev[i]].close << "\t"  << i << endl;
                 if (i >= datev.size()) { i--; break; }
                 sum += data[datev[i]].close;
             }
